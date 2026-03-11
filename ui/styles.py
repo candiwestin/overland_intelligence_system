@@ -20,18 +20,26 @@ def get_css() -> str:
    ROOT VARIABLES
    ============================================================ */
 :root {{
-    --bg:           #0A0E0A;
-    --bg-panel:     #0F140F;
-    --bg-raised:    #141A14;
-    --accent:       #39FF14;
-    --accent-dim:   #1A7A08;
-    --brass:        #C8B560;
-    --alert:        #D4431A;
-    --text:         #D6DDD0;
-    --text-dim:     #7A8A78;
-    --grid:         #1E241E;
-    --border:       #2A342A;
-    --rust:         #5C2E10;
+    --bg:           #F0F2F8;
+    --bg-panel:     #FFFFFF;
+    --bg-raised:    #E8ECF4;
+    --bg-sidebar:   #F7F8FC;
+    --accent:       #0077CC;
+    --accent-dim:   #005599;
+    --accent-glow:  rgba(0,119,204,0.12);
+    --purple:       #6B3FBF;
+    --purple-light: #EDE8F8;
+    --purple-dim:   #4A2F8A;
+    --brass:        #8A6820;
+    --alert:        #DC4A1A;
+    --alert-light:  #FEF0EB;
+    --text:         #1A1E2E;
+    --text-dim:     #6B7280;
+    --text-mid:     #374151;
+    --grid:         #E2E6F0;
+    --border:       #D0D6E8;
+    --border-dark:  #B0B8D0;
+    --white:        #FFFFFF;
 }}
 
 /* ============================================================
@@ -59,17 +67,17 @@ def get_css() -> str:
             45deg,
             transparent,
             transparent 10px,
-            rgba(212,67,26,0.08) 10px,
-            rgba(212,67,26,0.08) 20px
+            rgba(0,168,255,0.05) 10px,
+            rgba(0,168,255,0.05) 20px
         ),
         repeating-linear-gradient(
             -45deg,
             transparent,
             transparent 6px,
-            rgba(200,181,96,0.06) 6px,
-            rgba(200,181,96,0.06) 8px
+            rgba(123,79,212,0.04) 6px,
+            rgba(123,79,212,0.04) 8px
         ),
-        linear-gradient(180deg, #1A1F1A 0%, #0F140F 100%);
+        linear-gradient(180deg, #161B2E 0%, #0D0F14 100%);
     border-bottom: 3px solid var(--brass);
     padding: 18px 28px 14px 28px;
     margin-bottom: 0;
@@ -82,10 +90,10 @@ def get_css() -> str:
     height: 6px;
     background: repeating-linear-gradient(
         90deg,
-        var(--alert) 0px,
-        var(--alert) 20px,
-        var(--bg) 20px,
-        var(--bg) 40px
+        var(--accent) 0px,
+        var(--accent) 20px,
+        var(--purple) 20px,
+        var(--purple) 40px
     );
     position: absolute;
     bottom: -9px;
@@ -100,7 +108,7 @@ def get_css() -> str:
     font-weight: 900 !important;
     color: var(--accent) !important;
     letter-spacing: 0.12em !important;
-    text-shadow: 0 0 18px rgba(57,255,20,0.35) !important;
+    text-shadow: 0 0 18px rgba(0,168,255,0.45) !important;
     margin: 0 !important;
     line-height: 1.1 !important;
 }}
@@ -218,10 +226,10 @@ def get_css() -> str:
 
 /* Rust bleed accent — left edge on active panels */
 .ois-panel-active {{
-    border-left: 3px solid var(--alert) !important;
+    border-left: 3px solid var(--purple) !important;
     box-shadow:
-        inset 0 1px 0 rgba(200,181,96,0.08),
-        -2px 0 12px rgba(212,67,26,0.12),
+        inset 0 1px 0 rgba(0,168,255,0.06),
+        -2px 0 12px rgba(123,79,212,0.18),
         0 2px 8px rgba(0,0,0,0.5);
 }}
 
@@ -260,7 +268,7 @@ def get_css() -> str:
     line-height: 1;
 }}
 
-.gauge-value.green  {{ color: var(--accent); text-shadow: 0 0 10px rgba(57,255,20,0.4); }}
+.gauge-value.green  {{ color: var(--accent); text-shadow: 0 0 10px rgba(0,168,255,0.5); }}
 .gauge-value.brass  {{ color: var(--brass);  text-shadow: 0 0 10px rgba(200,181,96,0.3); }}
 .gauge-value.alert  {{ color: var(--alert);  text-shadow: 0 0 10px rgba(212,67,26,0.4); }}
 .gauge-value.dim    {{ color: var(--text-dim); }}
@@ -296,8 +304,8 @@ def get_css() -> str:
         0deg,
         transparent,
         transparent 2px,
-        rgba(57,255,20,0.015) 2px,
-        rgba(57,255,20,0.015) 4px
+        rgba(0,168,255,0.012) 2px,
+        rgba(0,168,255,0.012) 4px
     );
     pointer-events: none;
 }}
@@ -320,7 +328,7 @@ def get_css() -> str:
 }}
 
 .dot-complete {{ background: var(--accent); box-shadow: 0 0 6px var(--accent); }}
-.dot-running  {{ background: var(--brass);  box-shadow: 0 0 6px var(--brass);
+.dot-running  {{ background: var(--accent); box-shadow: 0 0 6px var(--accent);
                  animation: pulse 1.2s ease-in-out infinite; }}
 .dot-waiting  {{ background: var(--text-dim); }}
 .dot-failed   {{ background: var(--alert);  box-shadow: 0 0 6px var(--alert); }}
@@ -346,7 +354,7 @@ def get_css() -> str:
 }}
 
 .badge-complete {{ background: rgba(57,255,20,0.12);  color: var(--accent); border: 1px solid var(--accent-dim); }}
-.badge-running  {{ background: rgba(200,181,96,0.12); color: var(--brass);  border: 1px solid #5A4A20; }}
+.badge-running  {{ background: rgba(0,168,255,0.10);  color: var(--accent); border: 1px solid var(--accent-dim); }}
 .badge-waiting  {{ background: transparent;           color: var(--text-dim); border: 1px solid var(--border); }}
 .badge-failed   {{ background: rgba(212,67,26,0.15);  color: var(--alert);  border: 1px solid #7A2010; }}
 
@@ -395,7 +403,7 @@ def get_css() -> str:
 
 /* Primary button — RUN ANALYSIS */
 .stButton > button[kind="primary"] {{
-    background: linear-gradient(135deg, #1A4010, #0F2A08) !important;
+    background: linear-gradient(135deg, #0A2A4A, #061828) !important;
     border: 1px solid var(--accent-dim) !important;
     color: var(--accent) !important;
     font-family: 'Orbitron', monospace !important;
@@ -405,13 +413,13 @@ def get_css() -> str:
     text-transform: uppercase !important;
     padding: 10px 28px !important;
     border-radius: 3px !important;
-    box-shadow: 0 0 14px rgba(57,255,20,0.15) !important;
+    box-shadow: 0 0 14px rgba(0,168,255,0.2) !important;
     transition: all 0.15s ease !important;
 }}
 
 .stButton > button[kind="primary"]:hover {{
-    background: linear-gradient(135deg, #22541A, #142E0A) !important;
-    box-shadow: 0 0 24px rgba(57,255,20,0.3) !important;
+    background: linear-gradient(135deg, #0E3D6E, #091E3A) !important;
+    box-shadow: 0 0 24px rgba(0,168,255,0.35) !important;
     border-color: var(--accent) !important;
 }}
 
@@ -445,6 +453,7 @@ def get_css() -> str:
 .stTabs [aria-selected="true"] {{
     color: var(--accent) !important;
     border-bottom: 2px solid var(--accent) !important;
+    text-shadow: 0 0 8px rgba(0,168,255,0.4) !important;
 }}
 
 /* Expanders */
@@ -459,6 +468,7 @@ def get_css() -> str:
 [data-testid="stMetricValue"] {{
     font-family: 'Orbitron', monospace !important;
     color: var(--accent) !important;
+    text-shadow: 0 0 8px rgba(0,168,255,0.3) !important;
 }}
 
 /* Dividers */
@@ -525,7 +535,7 @@ hr {{
 .rec-card {{
     background: var(--bg-raised);
     border: 1px solid var(--border);
-    border-left: 3px solid var(--brass);
+    border-left: 3px solid var(--purple);
     border-radius: 3px;
     padding: 12px 16px;
     margin-bottom: 10px;
@@ -561,7 +571,7 @@ hr {{
 }}
 
 .priority-high    {{ color: var(--alert);  font-size: 0.65rem; letter-spacing: 0.1em; font-family: 'Share Tech Mono', monospace; }}
-.priority-medium  {{ color: var(--brass);  font-size: 0.65rem; letter-spacing: 0.1em; font-family: 'Share Tech Mono', monospace; }}
+.priority-medium  {{ color: var(--purple);  font-size: 0.65rem; letter-spacing: 0.1em; font-family: 'Share Tech Mono', monospace; }}
 .priority-low     {{ color: var(--text-dim); font-size: 0.65rem; letter-spacing: 0.1em; font-family: 'Share Tech Mono', monospace; }}
 .timeframe-badge  {{ color: var(--text-dim); font-size: 0.65rem; letter-spacing: 0.1em; font-family: 'Share Tech Mono', monospace; }}
 
@@ -586,7 +596,7 @@ hr {{
     gap: 6px;
 }}
 
-.status-dot-online  {{ width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 4px var(--accent); display: inline-block; }}
+.status-dot-online  {{ width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 5px var(--accent); display: inline-block; }}
 .status-dot-offline {{ width: 6px; height: 6px; border-radius: 50%; background: var(--text-dim); display: inline-block; }}
 </style>
 """

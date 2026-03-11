@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Overland Intelligence System — High Desert Expeditions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:          #F0F2F8;
+  --bg-panel:    #FFFFFF;
+  --bg-raised:   #E8ECF4;
+  --bg-sidebar:  #F7F8FC;
+  --accent:      #0077CC;
+  --accent-dim:  #005599;
+  --accent-glow: rgba(0,119,204,0.15);
+  --purple:      #6B3FBF;
+  --purple-light: #EDE8F8;
+  --purple-dim:  #4A2F8A;
+  --text:        #1A1E2E;
+  --text-dim:    #6B7280;
+  --text-mid:    #374151;
+  --grid:        #E2E6F0;
+  --border:      #D0D6E8;
+  --border-dark: #B0B8D0;
+  --alert:       #DC4A1A;
+  --alert-light: #FEF0EB;
+  --brass:       #8A6820;
+  --white:       #FFFFFF;
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md:   0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05);
+  --shadow-lg:   0 8px 24px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.header {
+  background: linear-gradient(135deg, #0A1628 0%, #1A2A4A 50%, #0D1F3C 100%);
+  padding: 20px 32px 18px;
+  border-bottom: 3px solid var(--accent);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    repeating-linear-gradient(45deg,
+      transparent, transparent 40px,
+      rgba(0,119,204,0.04) 40px, rgba(0,119,204,0.04) 41px),
+    repeating-linear-gradient(-45deg,
+      transparent, transparent 40px,
+      rgba(107,63,191,0.03) 40px, rgba(107,63,191,0.03) 41px);
+  pointer-events: none;
+}
+.header-inner { position: relative; display: flex; align-items: center; justify-content: space-between; }
+.header-left {}
+.header-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #FFFFFF;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 30px rgba(0,119,204,0.6);
+}
+.header-title span { color: var(--accent); }
+.header-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+.header-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--accent);
+  background: rgba(0,119,204,0.15);
+  border: 1px solid rgba(0,119,204,0.3);
+  padding: 4px 12px;
+  border-radius: 2px;
+  letter-spacing: 0.12em;
+}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  min-height: calc(100vh - 82px);
+  gap: 0;
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.sidebar {
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.section-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.58rem;
+  color: var(--accent);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.section-label::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 10px;
+  background: var(--accent);
+  border-radius: 1px;
+}
+
+/* Drop zone */
+.drop-zone {
+  border: 2px dashed var(--border-dark);
+  border-radius: 8px;
+  padding: 20px 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--white);
+  position: relative;
+}
+.drop-zone:hover, .drop-zone.dragover {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+.drop-zone input[type=file] {
+  position: absolute; inset: 0;
+  opacity: 0; cursor: pointer; width: 100%;
+}
+.drop-icon { font-size: 1.8rem; margin-bottom: 6px; }
+.drop-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+.drop-label span { color: var(--accent); font-weight: 600; }
+.file-loaded {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--accent);
+  margin-top: 8px;
+  padding: 4px 8px;
+  background: var(--accent-glow);
+  border-radius: 4px;
+  border: 1px solid rgba(0,119,204,0.2);
+}
+
+/* Question pills */
+.q-pill {
+  display: block;
+  width: 100%;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  color: var(--text-mid);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s;
+  line-height: 1.4;
+  box-shadow: var(--shadow-sm);
+}
+.q-pill:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-glow);
+  box-shadow: none;
+}
+
+/* Textarea */
+textarea#question {
+  width: 100%;
+  background: var(--white);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  padding: 10px 12px;
+  border-radius: 6px;
+  resize: vertical;
+  min-height: 90px;
+  line-height: 1.5;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s;
+}
+textarea#question:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* Selects */
+select {
+  width: 100%;
+  background: var(--white);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s;
+}
+select:focus { outline: none; border-color: var(--accent); }
+.select-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* Run button */
+.btn-run {
+  width: 100%;
+  background: linear-gradient(135deg, #0077CC, #005599);
+  border: none;
+  color: #FFFFFF;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0,119,204,0.35);
+  transition: all 0.15s;
+}
+.btn-run:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0088EE, #0066AA);
+  box-shadow: 0 6px 20px rgba(0,119,204,0.45);
+  transform: translateY(-1px);
+}
+.btn-run:disabled {
+  background: var(--border);
+  color: var(--text-dim);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ============================================================
+   MAIN
+   ============================================================ */
+.main { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+
+/* ============================================================
+   CARDS / PANELS
+   ============================================================ */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+}
+.card-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--grid);
+  padding-bottom: 8px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-title::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 12px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+.card-accent { border-top: 3px solid var(--accent); }
+.card-purple { border-top: 3px solid var(--purple); }
+
+/* ============================================================
+   GAUGES
+   ============================================================ */
+.gauge-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.gauge-cell {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 10px;
+  text-align: center;
+  transition: box-shadow 0.2s;
+}
+.gauge-cell.lit { box-shadow: 0 0 0 2px var(--accent-glow), var(--shadow-sm); }
+.gauge-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.gauge-value {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-dim);
+}
+.gauge-value.blue   { color: var(--accent); }
+.gauge-value.purple { color: var(--purple); }
+.gauge-value.green  { color: #1A9A4A; }
+.gauge-value.amber  { color: #D4830A; }
+.gauge-value.red    { color: var(--alert); }
+.gauge-unit {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  margin-top: 4px;
+}
+
+/* ============================================================
+   AGENT FEED
+   ============================================================ */
+.agent-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.agent-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--bg);
+  border: 1px solid var(--grid);
+  transition: background 0.2s;
+}
+.agent-row.running { background: rgba(0,119,204,0.05); border-color: rgba(0,119,204,0.2); }
+.agent-row.complete { background: rgba(26,154,74,0.04); border-color: rgba(26,154,74,0.15); }
+.agent-row.failed { background: var(--alert-light); border-color: rgba(220,74,26,0.2); }
+
+.agent-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+.dot-waiting  { background: var(--border-dark); }
+.dot-running  { background: var(--accent); box-shadow: 0 0 6px rgba(0,119,204,0.5);
+                animation: pulse 1.2s ease-in-out infinite; }
+.dot-complete { background: #1A9A4A; box-shadow: 0 0 4px rgba(26,154,74,0.4); }
+.dot-failed   { background: var(--alert); }
+@keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.4; transform:scale(0.8); } }
+
+.agent-name {
+  flex: 1;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-mid);
+}
+.agent-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.08em;
+}
+.badge-waiting  { background: var(--bg-raised); color: var(--text-dim); }
+.badge-running  { background: rgba(0,119,204,0.1); color: var(--accent); }
+.badge-complete { background: rgba(26,154,74,0.1); color: #1A9A4A; }
+.badge-failed   { background: var(--alert-light); color: var(--alert); }
+.agent-elapsed {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  margin-left: 10px;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+.tabs {
+  display: flex;
+  border-bottom: 2px solid var(--grid);
+  margin-bottom: 16px;
+  gap: 2px;
+}
+.tab-btn {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--text-dim);
+  background: transparent;
+  border: none;
+  padding: 9px 14px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--accent); }
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ============================================================
+   FINDINGS
+   ============================================================ */
+.finding-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--grid);
+  font-size: 0.88rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text-mid);
+}
+.finding-item:last-child { border-bottom: none; }
+.finding-bullet {
+  color: var(--accent);
+  margin-right: 10px;
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  margin-top: 4px;
+  font-family: 'Share Tech Mono', monospace;
+}
+.empty-state {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  padding: 16px 0;
+  text-align: center;
+}
+
+/* ============================================================
+   RECOMMENDATION CARDS
+   ============================================================ */
+.rec-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--purple);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  transition: box-shadow 0.15s;
+}
+.rec-card:hover { box-shadow: var(--shadow-md); }
+.rec-rank {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.58rem;
+  color: var(--text-dim);
+  letter-spacing: 0.15em;
+  margin-bottom: 4px;
+}
+.rec-action {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 5px;
+}
+.rec-rationale {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.rec-badges { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.badge-pill {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.06em;
+}
+.badge-high   { background: var(--alert-light); color: var(--alert); }
+.badge-medium { background: var(--purple-light); color: var(--purple); }
+.badge-low    { background: var(--bg-raised); color: var(--text-dim); }
+.badge-time   { background: rgba(0,119,204,0.08); color: var(--accent); }
+
+/* ============================================================
+   CHARTS
+   ============================================================ */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.chart-cell {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+}
+.chart-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.chart-cell img { width: 100%; border-radius: 4px; }
+
+/* ============================================================
+   REPORT
+   ============================================================ */
+.report-body {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.75;
+  color: var(--text-mid);
+  max-width: 760px;
+}
+.report-body h1 {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.1rem;
+  color: var(--text);
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 10px;
+  margin: 0 0 18px;
+  letter-spacing: 0.05em;
+}
+.report-body h2 {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.72rem;
+  color: var(--purple);
+  letter-spacing: 0.14em;
+  border-left: 3px solid var(--accent);
+  padding-left: 10px;
+  margin: 22px 0 10px;
+}
+.report-body h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 14px 0 6px;
+}
+.report-body ul { padding-left: 18px; margin: 8px 0 12px; }
+.report-body li { margin-bottom: 5px; }
+.report-body strong { color: var(--text); font-weight: 600; }
+.report-body em { color: var(--text-dim); font-size: 0.85rem; }
+.report-body hr { border: none; border-top: 1px solid var(--grid); margin: 20px 0; }
+.report-body p { margin: 8px 0; }
+.report-body code {
+  font-family: 'Share Tech Mono', monospace;
+  background: var(--bg-raised);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.85rem;
+}
+
+/* ============================================================
+   DOWNLOAD BUTTON
+   ============================================================ */
+.btn-download {
+  background: linear-gradient(135deg, #6B3FBF, #4A2F8A);
+  border: none;
+  color: #FFFFFF;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  padding: 11px 22px;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(107,63,191,0.3);
+  transition: all 0.15s;
+  display: none;
+  margin-top: 16px;
+}
+.btn-download:hover {
+  background: linear-gradient(135deg, #7B4FD4, #5A3A9A);
+  box-shadow: 0 6px 18px rgba(107,63,191,0.4);
+  transform: translateY(-1px);
+}
+.btn-download.visible { display: inline-block; }
+
+/* ============================================================
+   STATUS BAR
+   ============================================================ */
+.status-bar {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  padding: 8px 32px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--white);
+  letter-spacing: 0.07em;
+}
+.status-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  margin-right: 7px;
+  vertical-align: middle;
+}
+.dot-online  { background: #1A9A4A; box-shadow: 0 0 5px rgba(26,154,74,0.5); animation: pulse 2s ease-in-out infinite; }
+.dot-offline { background: var(--border-dark); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="header-title">⬡ OVERLAND <span>INTELLIGENCE</span> SYSTEM</div>
+      <div class="header-sub">High Desert Expeditions &nbsp;·&nbsp; Tucson, AZ &nbsp;·&nbsp; v1.0</div>
+    </div>
+    <div class="header-badge">KNOW THE TERRAIN BEFORE YOU MOVE</div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <div>
+      <div class="section-label">Data Upload</div>
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls">
+        <div class="drop-icon">📂</div>
+        <div class="drop-label">Drop CSV or <span>click to browse</span></div>
+        <div class="file-loaded" id="fileLoaded" style="display:none"></div>
+      </div>
+    </div>
+
+    <div id="suggestionsSection" style="display:none">
+      <div class="section-label">Suggested Questions</div>
+      <div id="questionPills"></div>
+    </div>
+
+    <div>
+      <div class="section-label">Business Question</div>
+      <textarea id="question" placeholder="What do you want to know about your data?"></textarea>
+    </div>
+
+    <div>
+      <div class="section-label">Providers</div>
+      <label class="select-label">LLM Engine</label>
+      <select id="llmSelect">
+        <option value="groq">Groq — llama-3.3-70b</option>
+        <option value="ollama_primary">Ollama — llama3.2</option>
+        <option value="ollama_secondary">Ollama — mistral</option>
+      </select>
+      <label class="select-label">Search</label>
+      <select id="searchSelect">
+        <option value="duckduckgo">DuckDuckGo</option>
+        <option value="tavily">Tavily</option>
+      </select>
+    </div>
+
+    <button class="btn-run" id="runBtn" disabled onclick="runAnalysis()">
+      ⬡ &nbsp; Run Analysis
+    </button>
+
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- GAUGES -->
+    <div class="card card-accent">
+      <div class="card-title">System Instruments</div>
+      <div class="gauge-grid">
+        <div class="gauge-cell" id="gcDataHealth">
+          <div class="gauge-label">Data Health</div>
+          <div class="gauge-value" id="gaugeDataHealth">--</div>
+          <div class="gauge-unit">/ 100</div>
+        </div>
+        <div class="gauge-cell" id="gcMarket">
+          <div class="gauge-label">Market Signal</div>
+          <div class="gauge-value" id="gaugeMarket">--</div>
+          <div class="gauge-unit">/ 100</div>
+        </div>
+        <div class="gauge-cell" id="gcConfidence">
+          <div class="gauge-label">Insight Conf.</div>
+          <div class="gauge-value" id="gaugeConfidence">--</div>
+          <div class="gauge-unit">/ 100</div>
+        </div>
+        <div class="gauge-cell" id="gcReport">
+          <div class="gauge-label">Report</div>
+          <div class="gauge-value" id="gaugeReport">0</div>
+          <div class="gauge-unit">% DONE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AGENT FEED -->
+    <div class="card card-purple">
+      <div class="card-title">Agent Pipeline</div>
+      <div class="agent-feed" id="agentFeed">
+        <div class="empty-state">AWAITING UPLOAD AND QUESTION</div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="card" id="resultsPanel" style="display:none">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('findings')">DATA FINDINGS</button>
+        <button class="tab-btn" onclick="switchTab('market')">MARKET INTEL</button>
+        <button class="tab-btn" onclick="switchTab('recommendations')">RECOMMENDATIONS</button>
+        <button class="tab-btn" onclick="switchTab('charts')">CHARTS</button>
+        <button class="tab-btn" onclick="switchTab('report')">REPORT</button>
+      </div>
+
+      <div class="tab-content active" id="tab-findings">
+        <div id="findingsList"><div class="empty-state">NO DATA YET</div></div>
+      </div>
+      <div class="tab-content" id="tab-market">
+        <div id="marketList"><div class="empty-state">NO DATA YET</div></div>
+      </div>
+      <div class="tab-content" id="tab-recommendations">
+        <div id="recList"><div class="empty-state">NO DATA YET</div></div>
+      </div>
+      <div class="tab-content" id="tab-charts">
+        <div class="chart-grid" id="chartGrid">
+          <div class="empty-state">CHARTS WILL APPEAR AFTER ANALYSIS</div>
+        </div>
+      </div>
+      <div class="tab-content" id="tab-report">
+        <div class="report-body" id="reportBody">
+          <div class="empty-state">REPORT WILL APPEAR AFTER ANALYSIS</div>
+        </div>
+        <button class="btn-download" id="downloadBtn" onclick="downloadPDF()">
+          ⬡ &nbsp; DOWNLOAD INTELLIGENCE REPORT
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <span>
+    <span class="status-dot dot-offline" id="statusDot"></span>
+    <span id="statusText">IDLE — READY FOR UPLOAD</span>
+  </span>
+  <span id="providerStatus">LLM: GROQ &nbsp;·&nbsp; SEARCH: DUCKDUCKGO</span>
+</div>
+
+<script>
+const API = 'http://localhost:8000';
+let fileId = null;
+let runId  = null;
+let agentStates = {};
+
+const AGENTS = [
+  { id: 'ingest_rag',   label: 'RAG Ingest'     },
+  { id: 'data_analyst', label: 'Data Analyst'    },
+  { id: 'research',     label: 'Market Research' },
+  { id: 'insights',     label: 'Insights Engine' },
+  { id: 'report',       label: 'Report Writer'   },
+];
+
+// ----------------------------------------------------------------
+// File upload
+// ----------------------------------------------------------------
+const dropZone  = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
+
+async function handleFile(file) {
+  setStatus('UPLOADING...');
+  document.getElementById('fileLoaded').style.display = 'none';
+  const form = new FormData();
+  form.append('file', file);
+  try {
+    const res  = await fetch(`${API}/upload`, { method: 'POST', body: form });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Upload failed');
+    fileId = data.file_id;
+    const loaded = document.getElementById('fileLoaded');
+    loaded.textContent = `✓ ${data.filename} — ${data.rows.toLocaleString()} rows`;
+    loaded.style.display = 'block';
+    renderSuggestions(data.suggested_questions);
+    checkRunReady();
+    setStatus('FILE LOADED — ' + data.rows.toLocaleString() + ' ROWS');
+  } catch (err) {
+    setStatus('UPLOAD FAILED');
+    alert('Upload error: ' + err.message);
+  }
+}
+
+function renderSuggestions(questions) {
+  const section = document.getElementById('suggestionsSection');
+  const pills   = document.getElementById('questionPills');
+  pills.innerHTML = '';
+  questions.forEach(q => {
+    const btn = document.createElement('button');
+    btn.className = 'q-pill';
+    btn.textContent = q;
+    btn.onclick = () => { document.getElementById('question').value = q; checkRunReady(); };
+    pills.appendChild(btn);
+  });
+  section.style.display = 'block';
+}
+
+document.getElementById('question').addEventListener('input', checkRunReady);
+
+function checkRunReady() {
+  const hasFile = !!fileId;
+  const hasQ    = document.getElementById('question').value.trim().length > 10;
+  document.getElementById('runBtn').disabled = !(hasFile && hasQ);
+}
+
+// ----------------------------------------------------------------
+// Run analysis
+// ----------------------------------------------------------------
+async function runAnalysis() {
+  const question = document.getElementById('question').value.trim();
+  if (!fileId || !question) return;
+  const llm    = document.getElementById('llmSelect').value;
+  const search = document.getElementById('searchSelect').value;
+
+  resetDashboard();
+  initAgentFeed();
+  document.getElementById('runBtn').disabled = true;
+  document.getElementById('resultsPanel').style.display = 'none';
+  setStatus('RUNNING PIPELINE...');
+  setStatusDot(true);
+  updateProviderStatus(llm, search);
+
+  const res = await fetch(`${API}/analyze/stream`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      file_id: fileId, business_question: question,
+      llm_provider: llm, search_provider: search,
+    }),
+  });
+
+  if (!res.ok) {
+    setStatus('PIPELINE FAILED');
+    alert('Analysis failed to start.');
+    document.getElementById('runBtn').disabled = false;
+    return;
+  }
+
+  const reader  = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop();
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      try { handleSSEEvent(JSON.parse(line.slice(6))); } catch (_) {}
+    }
+  }
+  document.getElementById('runBtn').disabled = false;
+}
+
+function handleSSEEvent(event) {
+  switch (event.type) {
+    case 'node_start':
+      updateAgent(event.node, 'waiting', '');
+      break;
+    case 'node_complete': {
+      const failed = event.status && event.status.includes('failed');
+      updateAgent(event.node, failed ? 'failed' : 'complete', event.elapsed || '');
+      const nodeOrder = ['ingest_rag','data_analyst','research','insights','report'];
+      const idx = nodeOrder.indexOf(event.node);
+      if (idx >= 0) updateGauge('gaugeReport', Math.round(((idx+1)/nodeOrder.length)*100), 'gcReport');
+      break;
+    }
+    case 'result':
+      runId = event.run_id;
+      populateDashboard(event);
+      setStatus('ANALYSIS COMPLETE');
+      setStatusDot(false);
+      break;
+    case 'error':
+      setStatus('ERROR: ' + (event.message || 'Unknown'));
+      setStatusDot(false);
+      break;
+  }
+}
+
+// ----------------------------------------------------------------
+// Agent feed
+// ----------------------------------------------------------------
+function initAgentFeed() {
+  agentStates = {};
+  AGENTS.forEach(a => { agentStates[a.id] = { label: a.label, status: 'waiting', elapsed: '' }; });
+  renderAgentFeed();
+}
+
+function updateAgent(nodeId, status, elapsed) {
+  if (!agentStates[nodeId]) agentStates[nodeId] = { label: nodeId, status, elapsed };
+  else { agentStates[nodeId].status = status; agentStates[nodeId].elapsed = elapsed; }
+  renderAgentFeed();
+}
+
+function renderAgentFeed() {
+  const feed = document.getElementById('agentFeed');
+  feed.innerHTML = AGENTS.map(a => {
+    const s = agentStates[a.id] || { status: 'waiting', elapsed: '' };
+    return `
+      <div class="agent-row ${s.status}">
+        <div class="agent-dot dot-${s.status}"></div>
+        <div class="agent-name">${a.label}</div>
+        <div class="agent-badge badge-${s.status}">${s.status.toUpperCase()}</div>
+        <div class="agent-elapsed">${s.elapsed}</div>
+      </div>`;
+  }).join('');
+}
+
+// ----------------------------------------------------------------
+// Gauges
+// ----------------------------------------------------------------
+function updateGauge(id, value, cellId) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = value === '--' ? '--' : value;
+  if (value === '--') { el.className = 'gauge-value'; return; }
+  el.className = 'gauge-value ' + colorClass(value);
+  if (cellId) {
+    const cell = document.getElementById(cellId);
+    if (cell && value > 0) cell.classList.add('lit');
+  }
+}
+
+function colorClass(v) {
+  if (v >= 75) return 'blue';
+  if (v >= 50) return 'purple';
+  if (v >= 25) return 'amber';
+  if (v > 0)   return 'red';
+  return '';
+}
+
+// ----------------------------------------------------------------
+// Populate dashboard
+// ----------------------------------------------------------------
+function populateDashboard(data) {
+  updateGauge('gaugeDataHealth', data.data_health_score || 0, 'gcDataHealth');
+  updateGauge('gaugeMarket',     Math.min(100, (data.market_findings||[]).length * 15), 'gcMarket');
+  updateGauge('gaugeConfidence', data.confidence_score || 0, 'gcConfidence');
+  updateGauge('gaugeReport',     data.report_markdown ? 100 : 80, 'gcReport');
+
+  renderList('findingsList', data.data_findings || []);
+  renderList('marketList',   data.market_findings || []);
+
+  const recList = document.getElementById('recList');
+  const recs = data.recommendations || [];
+  if (!recs.length) {
+    recList.innerHTML = '<div class="empty-state">NO RECOMMENDATIONS GENERATED</div>';
+  } else {
+    recList.innerHTML = recs.map(r => `
+      <div class="rec-card">
+        <div class="rec-rank">RECOMMENDATION #${String(r.rank||'?').padStart(2,'0')}</div>
+        <div class="rec-action">${r.action||''}</div>
+        <div class="rec-rationale">${r.rationale||''}</div>
+        <div class="rec-badges">
+          <span class="badge-pill badge-${r.priority||'medium'}">● ${(r.priority||'medium').toUpperCase()}</span>
+          <span class="badge-pill badge-time">⧖ ${(r.timeframe||'').replace(/_/g,' ').toUpperCase()}</span>
+        </div>
+      </div>`).join('');
+  }
+
+  renderCharts(data.charts || {});
+
+  const reportBody = document.getElementById('reportBody');
+  reportBody.innerHTML = data.report_markdown
+    ? markdownToHtml(data.report_markdown)
+    : '<div class="empty-state">REPORT NOT AVAILABLE</div>';
+
+  if (data.pdf_ready && runId)
+    document.getElementById('downloadBtn').classList.add('visible');
+
+  document.getElementById('resultsPanel').style.display = 'block';
+  switchTab('findings');
+}
+
+function renderList(containerId, items) {
+  const el = document.getElementById(containerId);
+  if (!items || !items.length) { el.innerHTML = '<div class="empty-state">NO DATA</div>'; return; }
+  el.innerHTML = items.map(item => `
+    <div class="finding-item">
+      <span class="finding-bullet">▶</span>
+      <span>${item}</span>
+    </div>`).join('');
+}
+
+function renderCharts(charts) {
+  const grid = document.getElementById('chartGrid');
+  const titles = {
+    revenue_by_year: 'Revenue by Year',
+    revenue_by_build_category: 'Revenue by Build Category',
+    baja_growth_trend: 'Baja vs Other Builds — Growth Trend',
+    revenue_by_region: 'Revenue by Region',
+  };
+  const entries = Object.entries(charts).filter(([,v]) => v);
+  if (!entries.length) { grid.innerHTML = '<div class="empty-state">NO CHARTS AVAILABLE</div>'; return; }
+  grid.innerHTML = entries.map(([key, b64]) => `
+    <div class="chart-cell">
+      <div class="chart-title">${titles[key]||key}</div>
+      <img src="data:image/png;base64,${b64}" alt="${key}">
+    </div>`).join('');
+}
+
+// ----------------------------------------------------------------
+// Markdown → HTML
+// ----------------------------------------------------------------
+function markdownToHtml(md) {
+  const lines = md.split('\n');
+  let html = '', inList = false;
+  for (const raw of lines) {
+    const line = raw.trim();
+    if      (line.startsWith('### ')) { if(inList){html+='</ul>';inList=false;} html+=`<h3>${inline(line.slice(4))}</h3>`; }
+    else if (line.startsWith('## '))  { if(inList){html+='</ul>';inList=false;} html+=`<h2>${inline(line.slice(3))}</h2>`; }
+    else if (line.startsWith('# '))   { if(inList){html+='</ul>';inList=false;} html+=`<h1>${inline(line.slice(2))}</h1>`; }
+    else if (line.startsWith('- ') || line.startsWith('* ')) {
+      if (!inList) { html += '<ul>'; inList = true; }
+      html += `<li>${inline(line.slice(2))}</li>`;
+    }
+    else if (/^\d+\.\s/.test(line)) { if(inList){html+='</ul>';inList=false;} html+=`<p>${inline(line.replace(/^\d+\.\s+/,''))}</p>`; }
+    else if (line==='---') { if(inList){html+='</ul>';inList=false;} html+='<hr>'; }
+    else if (line==='')   { if(inList){html+='</ul>';inList=false;} }
+    else { if(inList){html+='</ul>';inList=false;} html+=`<p>${inline(line)}</p>`; }
+  }
+  if (inList) html += '</ul>';
+  return html;
+}
+
+function inline(text) {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+    .replace(/`(.+?)`/g,       '<code>$1</code>');
+}
+
+// ----------------------------------------------------------------
+// PDF download
+// ----------------------------------------------------------------
+function downloadPDF() {
+  if (runId) window.open(`${API}/download/${runId}`, '_blank');
+}
+
+// ----------------------------------------------------------------
+// Tabs
+// ----------------------------------------------------------------
+function switchTab(name) {
+  const names = ['findings','market','recommendations','charts','report'];
+  document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', names[i]===name));
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.toggle('active', el.id===`tab-${name}`));
+}
+
+// ----------------------------------------------------------------
+// Utilities
+// ----------------------------------------------------------------
+function resetDashboard() {
+  ['gaugeDataHealth','gaugeMarket','gaugeConfidence'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = '--'; el.className = 'gauge-value'; }
+  });
+  document.getElementById('gaugeReport').textContent = '0';
+  ['gcDataHealth','gcMarket','gcConfidence','gcReport'].forEach(id => {
+    document.getElementById(id)?.classList.remove('lit');
+  });
+  document.getElementById('findingsList').innerHTML = '<div class="empty-state">NO DATA YET</div>';
+  document.getElementById('marketList').innerHTML   = '<div class="empty-state">NO DATA YET</div>';
+  document.getElementById('recList').innerHTML      = '<div class="empty-state">NO DATA YET</div>';
+  document.getElementById('chartGrid').innerHTML    = '<div class="empty-state">CHARTS WILL APPEAR AFTER ANALYSIS</div>';
+  document.getElementById('reportBody').innerHTML   = '<div class="empty-state">REPORT WILL APPEAR AFTER ANALYSIS</div>';
+  document.getElementById('downloadBtn').classList.remove('visible');
+  runId = null;
+}
+
+function setStatus(text) { document.getElementById('statusText').textContent = text; }
+function setStatusDot(active) {
+  document.getElementById('statusDot').className = 'status-dot ' + (active ? 'dot-online' : 'dot-offline');
+}
+function updateProviderStatus(llm, search) {
+  const labels = { groq:'GROQ', ollama_primary:'OLLAMA / LLAMA3.2', ollama_secondary:'OLLAMA / MISTRAL', duckduckgo:'DUCKDUCKGO', tavily:'TAVILY' };
+  document.getElementById('providerStatus').textContent =
+    `LLM: ${labels[llm]||llm.toUpperCase()} \u00a0·\u00a0 SEARCH: ${labels[search]||search.toUpperCase()}`;
+}
+</script>
+</body>
+</html>
