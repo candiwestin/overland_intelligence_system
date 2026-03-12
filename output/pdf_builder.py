@@ -172,14 +172,14 @@ def _build_full_html(body: str, charts: str) -> str:
   h1 {{
     font-size: 18pt;
     color: #1a1a1a;
-    border-bottom: 2px solid #C8B560;
+    border-bottom: 2px solid #0077CC;
     padding-bottom: 6px;
     margin-top: 0;
   }}
   h2 {{
     font-size: 13pt;
     color: #2c2c2c;
-    border-left: 4px solid #D4431A;
+    border-left: 4px solid #6B3FBF;
     padding-left: 10px;
     margin-top: 24px;
   }}
