@@ -14,7 +14,7 @@ def ingest_documents(file_sources: list, embeddings) -> Optional[object]:
     Qdrant in-memory vector store scoped to the current session.
 
     Args:
-        file_sources: List of file paths or Streamlit UploadedFile objects.
+        file_sources: List of file paths (str or Path).
                       Supports PDF and plain text files.
         embeddings:   LangChain embeddings instance from embedding_factory.
 
@@ -84,7 +84,7 @@ def ingest_documents(file_sources: list, embeddings) -> Optional[object]:
 
 def _load_document(source) -> list:
     """
-    Loads a single document from a file path or Streamlit UploadedFile.
+    Loads a single document from a file path.
     Supports PDF and plain text.
     """
     filename = getattr(source, "name", str(source))

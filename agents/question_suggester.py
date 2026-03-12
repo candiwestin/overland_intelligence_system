@@ -22,7 +22,7 @@ def generate_suggested_questions(file_source, llm) -> list[str]:
     Designed to be fast (2-3 seconds on Groq).
 
     Args:
-        file_source: File path or Streamlit UploadedFile object.
+        file_source: Path to the data file (str or Path).
         llm: LangChain chat model instance from llm_factory.get_llm().
 
     Returns:

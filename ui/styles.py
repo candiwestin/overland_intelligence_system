@@ -1,10 +1,8 @@
 """
-UI styles for the Overland Intelligence System.
+UI component helpers for the Overland Intelligence System.
 
-Baja pit crew meets tactical operations display.
-Earned, not neglected. Field command center aesthetic.
-
-Inject with: st.markdown(get_css(), unsafe_allow_html=True)
+CSS design tokens and HTML component renderers used by the dashboard.
+The design system lives here — app.html inlines the output.
 """
 
 
@@ -23,7 +21,6 @@ def get_css() -> str:
     --bg:           #F0F2F8;
     --bg-panel:     #FFFFFF;
     --bg-raised:    #E8ECF4;
-    --bg-sidebar:   #F7F8FC;
     --accent:       #0077CC;
     --accent-dim:   #005599;
     --accent-glow:  rgba(0,119,204,0.12);
@@ -51,7 +48,6 @@ def get_css() -> str:
     font-family: 'Rajdhani', sans-serif !important;
 }}
 
-/* Hide Streamlit chrome */
 #MainMenu, footer, header {{ visibility: hidden; }}
 .block-container {{
     padding-top: 0 !important;
@@ -457,12 +453,6 @@ def get_css() -> str:
 }}
 
 /* Expanders */
-.streamlit-expanderHeader {{
-    font-family: 'Rajdhani', sans-serif !important;
-    color: var(--text) !important;
-    background: var(--bg-panel) !important;
-    border: 1px solid var(--border) !important;
-}}
 
 /* Metric values */
 [data-testid="stMetricValue"] {{
@@ -627,7 +617,7 @@ def render_agent_feed(agent_statuses: list[dict]) -> str:
             - elapsed: str — elapsed time string e.g. '4.2s'
 
     Returns:
-        HTML string for st.markdown(..., unsafe_allow_html=True)
+        HTML string for injecting into the dashboard.
     """
     rows = []
     for agent in agent_statuses:

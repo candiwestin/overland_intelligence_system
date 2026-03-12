@@ -22,7 +22,7 @@ def run_data_analyst(file_source, llm) -> dict:
     Loads, cleans, profiles, and analyzes the uploaded data file.
 
     Args:
-        file_source: File path or Streamlit UploadedFile object.
+        file_source: Path to the data file (str or Path).
         llm: LangChain chat model instance from llm_factory.get_llm().
 
     Returns:

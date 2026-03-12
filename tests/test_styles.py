@@ -36,7 +36,7 @@ def test_get_css_contains_palette_vars():
 def test_get_css_contains_key_components():
     from ui.styles import get_css
     css = get_css()
-    for selector in ("ois-header", "gauge-grid", "agent-feed", "rec-card", "sidebar"):
+    for selector in ("ois-header", "gauge-grid", "agent-feed", "rec-card"):
         assert selector in css, f"Missing component: {selector}"
 
 

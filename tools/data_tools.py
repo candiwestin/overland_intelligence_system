@@ -16,7 +16,7 @@ def load_dataframe(source: Union[str, Path, object]) -> pd.DataFrame:
 
     Args:
         source: File path string, Path object, or a file-like object
-                (e.g. from Streamlit's st.file_uploader).
+                (str or Path).
 
     Returns:
         pandas DataFrame
