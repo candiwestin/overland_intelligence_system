@@ -157,8 +157,8 @@ def main():
         from tools.data_tools import load_dataframe, clean_dataframe, profile_dataframe
         df      = clean_dataframe(load_dataframe(str(file_path)))
         profile = profile_dataframe(df)
-        success(f"{profile['shape'][0]:,} rows × {profile['shape'][1]} columns")
-        success(f"Data health score: {profile.get('health_score', 0)}/100")
+        success(f"{profile['shape']['rows']:,} rows × {profile['shape']['columns']} columns")
+        success(f"Data health score: {profile.get('data_health_score', 0)}/100")
     except Exception as e:
         error(f"Data load failed: {e}")
         sys.exit(1)
@@ -169,7 +169,7 @@ def main():
     section("Generating suggested questions")
     try:
         from agents.question_suggester import generate_suggested_questions
-        suggestions = generate_suggested_questions(df, llm)
+        suggestions = generate_suggested_questions(str(file_path), llm)
         for i, q in enumerate(suggestions, 1):
             item(f"{i}. {q}", CYAN)
     except Exception as e:
