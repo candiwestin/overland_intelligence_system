@@ -26,38 +26,38 @@ class Settings(BaseSettings):
     suggested_question_count: int = Field(default=5)
 
     # -------------------------------------------------------------------------
-    # LLM
+    # LLM — all values from .env
     # -------------------------------------------------------------------------
-    llm_provider: str = Field(default="groq")
+    llm_provider: str = Field(default="")
 
-    # Groq
     groq_api_key: str = Field(default="")
-    groq_model: str = Field(default="llama-3.3-70b-versatile")
+    groq_model: str = Field(default="")
 
-    # Ollama
-    ollama_base_url: str = Field(default="http://localhost:11434")
-    ollama_model_primary: str = Field(default="llama3.2")
-    ollama_model_secondary: str = Field(default="mistral")
+    ollama_base_url: str = Field(default="")
+    ollama_model_primary: str = Field(default="")
+    ollama_model_secondary: str = Field(default="")
 
-    # OpenAI — showcased, not active by default
-    # openai_api_key: str = Field(default="")
-    # openai_model: str = Field(default="gpt-4o")
-
-    # -------------------------------------------------------------------------
-    # Embeddings
-    # -------------------------------------------------------------------------
-    embedding_provider: str = Field(default="ollama")
-    embedding_model: str = Field(default="nomic-embed-text")
+    # OpenAI — uncomment block in .env to activate, no code changes needed
+    openai_api_key: str = Field(default="")
+    openai_model_primary: str = Field(default="")
+    openai_model_secondary: str = Field(default="")
+    openai_base_url: str = Field(default="")   # optional — for Azure or compatible endpoints
 
     # -------------------------------------------------------------------------
-    # Search
+    # Embeddings — all values from .env
     # -------------------------------------------------------------------------
-    search_provider: str = Field(default="tavily")
+    embedding_provider: str = Field(default="")
+    embedding_model: str = Field(default="")
+
+    # -------------------------------------------------------------------------
+    # Search — all values from .env
+    # -------------------------------------------------------------------------
+    search_provider: str = Field(default="")
     tavily_api_key: str = Field(default="")
-    # brave_api_key: str = Field(default="")   # Brave — showcased
+    brave_api_key: str = Field(default="")
 
     # -------------------------------------------------------------------------
-    # RAG
+    # RAG — tuning parameters, operational defaults are appropriate here
     # -------------------------------------------------------------------------
     rag_chunk_size: int = Field(default=500)
     rag_chunk_overlap: int = Field(default=50)

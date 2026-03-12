@@ -277,7 +277,8 @@ async def _run_pipeline_sse(req: AnalyzeRequest, file_path: str) -> AsyncGenerat
             from agents.report_agent import run_report_agent
             pipeline_state = run_report_agent(dict(pipeline_state), llm)
         except Exception as e:
-            pipeline_state["errors"] = pipeline_state.get("errors", []) + [str(e)]
+            msg = getattr(e, "retry_message", None) or str(e)
+            pipeline_state["errors"] = pipeline_state.get("errors", []) + [msg]
             pipeline_state["report_markdown"] = ""
 
         report_elapsed = round(time.time() - report_start, 1)
@@ -336,7 +337,11 @@ async def _run_pipeline_sse(req: AnalyzeRequest, file_path: str) -> AsyncGenerat
         })
 
     except Exception as e:
-        yield _event("error", {"message": str(e)})
+        retry = getattr(e, "retry_message", None)
+        yield _event("error", {
+            "message":       str(e),
+            "retry_message": retry or "",
+        })
 
 
 # -----------------------------------------------------------------------------
@@ -362,6 +367,21 @@ async def download_pdf(run_id: str):
 # -----------------------------------------------------------------------------
 # GET /health
 # -----------------------------------------------------------------------------
+
+@app.get("/providers")
+async def get_providers():
+    """
+    Returns all registered providers for LLM and search.
+    The dashboard uses this to populate dropdowns dynamically —
+    adding a new provider to a registry automatically surfaces it in the UI.
+    """
+    from config.llm_factory import get_available_llm_providers
+    from config.search_factory import get_available_search_providers
+    return {
+        "llm":    get_available_llm_providers(),
+        "search": get_available_search_providers(),
+    }
+
 
 @app.get("/health")
 async def health():

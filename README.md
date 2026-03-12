@@ -56,12 +56,16 @@ A synthetic 3,500-row sales dataset (`sample_data/hde_overland_sales_2022_2024.c
 
 ```
 overland_intelligence_system/
-├── app_api.py              FastAPI backend — upload, stream, download
+├── app_api.py              FastAPI backend — upload, analyze/stream, download, providers
 ├── app.html                Single-file HTML dashboard
 ├── config/
-│   ├── settings.py         Pydantic settings — all config in .env
-│   ├── llm_factory.py      LLM provider abstraction
-│   └── embedding_factory.py Embeddings provider abstraction
+│   ├── settings.py         Pydantic settings — reads .env, zero provider opinions
+│   ├── llm_registry.py     ← ADD NEW LLM PROVIDERS HERE ONLY
+│   ├── search_registry.py  ← ADD NEW SEARCH PROVIDERS HERE ONLY
+│   ├── embedding_registry.py ← ADD NEW EMBEDDING PROVIDERS HERE ONLY
+│   ├── llm_factory.py      Reads registry — no provider logic, never changes
+│   ├── search_factory.py   Reads registry — no provider logic, never changes
+│   └── embedding_factory.py Reads registry — no provider logic, never changes
 ├── graph/
 │   └── workflow.py         LangGraph state schema + pipeline
 ├── agents/
@@ -72,9 +76,9 @@ overland_intelligence_system/
 │   └── report_agent.py
 ├── tools/
 │   ├── data_tools.py       CSV/Excel load, clean, profile, analyze
-│   ├── search_tools.py     Tavily / DuckDuckGo provider abstraction
+│   ├── search_tools.py     Search execution + result normalization
 │   ├── chart_tools.py      4 matplotlib charts → base64 PNG
-│   └── exceptions.py       Named exceptions
+│   └── exceptions.py       Named exceptions with registry-sourced retry messages
 ├── prompts/                System + user prompts per agent
 ├── rag/
 │   ├── ingest.py           Chunk → embed → Qdrant in-memory
@@ -83,10 +87,23 @@ overland_intelligence_system/
 │   └── pdf_builder.py      Markdown + charts → PDF via WeasyPrint
 ├── ui/
 │   └── styles.py           CSS design system + HTML component helpers
-├── tests/                  131 tests across all modules
+├── tests/                  132 tests across all modules
 └── sample_data/
     └── hde_overland_sales_2022_2024.csv
 ```
+
+### Adding a New Provider
+
+To add a new LLM, search, or embedding provider — **edit one file only**:
+
+| What you're adding | Edit this file |
+|---|---|
+| New LLM | `config/llm_registry.py` |
+| New search provider | `config/search_registry.py` |
+| New embedding provider | `config/embedding_registry.py` |
+
+Then add the required keys to `.env`. The dashboard dropdown, error messages,
+and fallback logic update automatically — no other files change.
 
 ---
 
@@ -194,6 +211,7 @@ Browser (app.html)
     │  POST /upload          CSV → file_id + suggested questions
     │  POST /analyze/stream  SSE stream — node events + final result
     │  GET  /download/{id}   PDF file download
+    │  GET  /providers       Registry-driven provider list → populates dashboard dropdowns
     │
 FastAPI (app_api.py)
     │
@@ -209,6 +227,28 @@ FastAPI (app_api.py)
 ```
 
 All LLM and search providers are swappable at runtime via the sidebar dropdowns — no restart required.
+
+---
+
+## A Note on the Data Layer
+
+The dashboard includes a CSV file upload for demonstration purposes. This was a deliberate choice to
+keep the portfolio demo self-contained and easy to run. Just drag a file in, ask a question, see the
+full pipeline run.
+
+In a production deployment, the data layer would be replaced by automated connectors feeding the
+system on an ongoing basis.
+
+Realistic production sources would include:
+
+- **A relational database** — Postgres, Snowflake, BigQuery — queried on a schedule or on demand
+- **A cloud storage bucket** — S3, GCS, Azure Blob — with new files landing continuously and triggering ingestion
+- **An API feed** — internal or third-party — pulling structured data into the pipeline automatically
+
+The agent pipeline, RAG layer, and report generation are all source-agnostic. Replacing the upload
+with any of these connectors requires changes only to the data ingestion layer — everything downstream
+runs identically. The CSV upload exists to demonstrate the system; the architecture was designed with
+production data sources in mind.
 
 ---
 

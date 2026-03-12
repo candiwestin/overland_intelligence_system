@@ -709,16 +709,9 @@ select:focus { outline: none; border-color: var(--accent); }
     <div>
       <div class="section-label">Providers</div>
       <label class="select-label">LLM Engine</label>
-      <select id="llmSelect">
-        <option value="groq">Groq — llama-3.3-70b</option>
-        <option value="ollama_primary">Ollama — llama3.2</option>
-        <option value="ollama_secondary">Ollama — mistral</option>
-      </select>
+      <select id="llmSelect"><option value="">Loading...</option></select>
       <label class="select-label">Search</label>
-      <select id="searchSelect">
-        <option value="duckduckgo">DuckDuckGo</option>
-        <option value="tavily">Tavily</option>
-      </select>
+      <select id="searchSelect"><option value="">Loading...</option></select>
     </div>
 
     <button class="btn-run" id="runBtn" disabled onclick="runAnalysis()">
@@ -951,11 +944,18 @@ function handleSSEEvent(event) {
       runId = event.run_id;
       populateDashboard(event);
       setStatus('ANALYSIS COMPLETE');
+      if (event.errors && event.errors.length > 0) {
+        showErrorBanner(
+          'Analysis completed with warnings.',
+          event.errors.join(' | ')
+        );
+      }
       setStatusDot(false);
       break;
     case 'error':
-      setStatus('ERROR: ' + (event.message || 'Unknown'));
+      setStatus('ERROR');
       setStatusDot(false);
+      showErrorBanner(event.message, event.retry_message);
       break;
   }
 }
@@ -963,6 +963,33 @@ function handleSSEEvent(event) {
 // ----------------------------------------------------------------
 // Agent feed
 // ----------------------------------------------------------------
+function showErrorBanner(message, retryMessage) {
+  let banner = document.getElementById('error-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'error-banner';
+    banner.style.cssText = [
+      'position:fixed', 'top:20px', 'left:50%', 'transform:translateX(-50%)',
+      'background:#1A1E2E', 'border:1px solid #CC3333', 'border-radius:8px',
+      'padding:16px 24px', 'max-width:600px', 'width:90%', 'z-index:9999',
+      'box-shadow:0 4px 24px rgba(0,0,0,0.4)', 'font-family:Inter,sans-serif'
+    ].join(';');
+    document.body.appendChild(banner);
+  }
+  banner.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+      <div>
+        <div style="color:#CC3333;font-family:Orbitron,sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;margin-bottom:6px">
+          ⚠ PIPELINE ERROR
+        </div>
+        <div style="color:#E0E4F0;font-size:13px;margin-bottom:${retryMessage ? '8px' : '0'}">${message}</div>
+        ${retryMessage ? `<div style="color:#0077CC;font-size:12px;line-height:1.5">→ ${retryMessage}</div>` : ''}
+      </div>
+      <button onclick="document.getElementById('error-banner').remove()"
+        style="background:none;border:none;color:#6B7280;cursor:pointer;font-size:18px;line-height:1;padding:0;flex-shrink:0">✕</button>
+    </div>`;
+}
+
 function initAgentFeed() {
   agentStates = {};
   AGENTS.forEach(a => { agentStates[a.id] = { label: a.label, status: 'waiting', elapsed: '' }; });
@@ -1154,11 +1181,49 @@ function setStatus(text) { document.getElementById('statusText').textContent = t
 function setStatusDot(active) {
   document.getElementById('statusDot').className = 'status-dot ' + (active ? 'dot-online' : 'dot-offline');
 }
-function updateProviderStatus(llm, search) {
-  const labels = { groq:'GROQ', ollama_primary:'OLLAMA / LLAMA3.2', ollama_secondary:'OLLAMA / MISTRAL', duckduckgo:'DUCKDUCKGO', tavily:'TAVILY' };
-  document.getElementById('providerStatus').textContent =
-    `LLM: ${labels[llm]||llm.toUpperCase()} \u00a0·\u00a0 SEARCH: ${labels[search]||search.toUpperCase()}`;
+// Registry-sourced provider labels — populated by fetchProviders() on load
+let PROVIDER_LABELS = {};
+
+async function fetchProviders() {
+  try {
+    const res  = await fetch('http://localhost:8000/providers');
+    const data = await res.json();
+
+    const llmSelect    = document.getElementById('llmSelect');
+    const searchSelect = document.getElementById('searchSelect');
+    llmSelect.innerHTML    = '';
+    searchSelect.innerHTML = '';
+
+    data.llm.forEach(p => {
+      PROVIDER_LABELS[p.key] = p.label.toUpperCase();
+      const opt = document.createElement('option');
+      opt.value       = p.key;
+      opt.textContent = p.label;
+      llmSelect.appendChild(opt);
+    });
+
+    data.search.forEach(p => {
+      PROVIDER_LABELS[p.key] = p.label.toUpperCase();
+      const opt = document.createElement('option');
+      opt.value       = p.key;
+      opt.textContent = p.label;
+      searchSelect.appendChild(opt);
+    });
+
+  } catch (err) {
+    console.warn('Could not load providers from API:', err);
+  }
 }
+
+function updateProviderStatus(llm, search) {
+  const llmLabel    = PROVIDER_LABELS[llm]    || llm.toUpperCase();
+  const searchLabel = PROVIDER_LABELS[search]  || search.toUpperCase();
+  document.getElementById('providerStatus').textContent =
+    `LLM: ${llmLabel} \u00a0·\u00a0 SEARCH: ${searchLabel}`;
+}
+
+// Load providers on page load
+fetchProviders();
 </script>
 </body>
 </html>

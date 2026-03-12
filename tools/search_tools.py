@@ -1,67 +1,21 @@
+"""
+Search Tools
+============
+Executes search queries and normalizes results across providers.
+
+This file handles search execution only — client creation lives in
+config/search_factory.py. Provider configuration lives in
+config/search_registry.py.
+"""
+
 import sys
+import warnings
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from config.settings import settings
+from config.search_registry import SEARCH_REGISTRY
 from tools.exceptions import SearchProviderError
-
-
-# -----------------------------------------------------------------------------
-# Provider factory
-# -----------------------------------------------------------------------------
-
-def get_search_client(provider: str = None):
-    """
-    Returns the configured search client based on provider selection.
-
-    Args:
-        provider: Override the default from settings. Accepts 'tavily',
-                  'duckduckgo', or 'brave'. Passed in from the Streamlit
-                  sidebar at runtime.
-
-    Returns:
-        A search client instance with a callable .invoke(query) interface.
-
-    Raises:
-        SearchProviderError: If the provider is unknown or fails to initialize.
-    """
-    resolved_provider = provider or settings.search_provider
-
-    try:
-        if resolved_provider == "tavily":
-            from langchain_community.tools.tavily_search import TavilySearchResults
-            return TavilySearchResults(
-                api_key=settings.tavily_api_key,
-                max_results=5,
-            )
-
-        if resolved_provider == "duckduckgo":
-            from langchain_community.tools import DuckDuckGoSearchRun
-            return DuckDuckGoSearchRun()
-
-        # Brave Search — built and ready, activate by:
-        # 1. Setting SEARCH_PROVIDER=brave in .env or sidebar
-        # 2. Uncommenting BRAVE_API_KEY in .env
-        # 3. Uncommenting the block below
-        # 4. Uncommenting brave-search in requirements.txt
-        #
-        # if resolved_provider == "brave":
-        #     from langchain_community.tools import BraveSearch
-        #     return BraveSearch.from_api_key(
-        #         api_key=settings.brave_api_key,
-        #         search_kwargs={"count": 5},
-        #     )
-
-        raise SearchProviderError(
-            provider=resolved_provider,
-            detail=f"Unknown provider '{resolved_provider}'. Valid options: tavily, duckduckgo",
-        )
-
-    except SearchProviderError:
-        raise
-    except Exception as e:
-        raise SearchProviderError(provider=resolved_provider, detail=str(e))
 
 
 # -----------------------------------------------------------------------------
@@ -72,29 +26,69 @@ def run_search(client, query: str) -> list[dict]:
     """
     Executes a search query using the provided client.
 
+    If the primary provider has a fallback defined in the registry and fails,
+    automatically retries with the fallback provider before raising an error.
+
     Args:
-        client: Search client from get_search_client().
-        query: The search query string.
+        client: Search client from config/search_factory.get_search_client().
+        query:  The search query string.
 
     Returns:
-        List of result dicts. Each dict contains at minimum:
-            - 'content' or 'snippet': the result text
-            - 'url' or 'link': source URL where available
+        List of result dicts with keys: title, content, url.
 
     Raises:
-        SearchProviderError: On rate limit, quota exhaustion, or network failure.
+        SearchProviderError: If the provider (and any fallback) fails.
     """
     try:
         raw = client.invoke(query)
-
-        # Normalize output — different providers return different shapes
-        return _normalize_results(raw, client)
+        return _normalize_results(raw)
 
     except SearchProviderError:
         raise
     except Exception as e:
         provider_name = _get_provider_name(client)
-        raise SearchProviderError(provider=provider_name, detail=str(e))
+        config        = SEARCH_REGISTRY.get(provider_name)
+
+        # Attempt automatic fallback if the registry defines one
+        if config and config.fallback:
+            fallback_key    = config.fallback
+            fallback_config = SEARCH_REGISTRY.get(fallback_key)
+
+            warnings.warn(
+                f"{config.retry_message} Falling back to {fallback_key}.",
+                stacklevel=2,
+            )
+
+            try:
+                import importlib, os
+                if fallback_config.env_inject:
+                    from config.settings import settings
+                    for env_key, settings_key in fallback_config.env_inject.items():
+                        value = getattr(settings, settings_key, "")
+                        if value:
+                            os.environ[env_key] = value
+
+                module   = importlib.import_module(fallback_config.module)
+                cls      = getattr(module, fallback_config.class_name)
+                fallback = cls(**fallback_config.kwargs)
+                raw      = fallback.invoke(query)
+                return _normalize_results(raw)
+
+            except Exception as fallback_error:
+                raise SearchProviderError(
+                    provider=fallback_key,
+                    detail=(
+                        f"Primary provider '{provider_name}' failed: {e}. "
+                        f"Fallback '{fallback_key}' also failed: {fallback_error}."
+                    ),
+                    retry_message=fallback_config.retry_message if fallback_config else "",
+                )
+
+        raise SearchProviderError(
+            provider=provider_name,
+            detail=str(e),
+            retry_message=config.retry_message if config else "",
+        )
 
 
 def run_multi_search(client, queries: list[str]) -> list[dict]:
@@ -102,7 +96,7 @@ def run_multi_search(client, queries: list[str]) -> list[dict]:
     Executes multiple search queries and returns deduplicated results.
 
     Args:
-        client: Search client from get_search_client().
+        client:  Search client from config/search_factory.get_search_client().
         queries: List of query strings — typically 2 to 4 per agent run.
 
     Returns:
@@ -112,12 +106,12 @@ def run_multi_search(client, queries: list[str]) -> list[dict]:
         SearchProviderError: If any query fails.
     """
     all_results = []
-    seen_urls = set()
+    seen_urls   = set()
 
     for query in queries:
         results = run_search(client, query)
         for result in results:
-            url = result.get("url", result.get("link", ""))
+            url = result.get("url", "")
             if url and url not in seen_urls:
                 seen_urls.add(url)
                 all_results.append(result)
@@ -131,9 +125,9 @@ def run_multi_search(client, queries: list[str]) -> list[dict]:
 # Normalization helpers
 # -----------------------------------------------------------------------------
 
-def _normalize_results(raw, client) -> list[dict]:
+def _normalize_results(raw) -> list[dict]:
     """
-    Normalizes search results from different providers into a consistent shape.
+    Normalizes search results from any provider into a consistent shape.
 
     Output format per result:
         {
@@ -163,12 +157,9 @@ def _normalize_results(raw, client) -> list[dict]:
 
 
 def _get_provider_name(client) -> str:
-    """Extracts a readable provider name from the client class name."""
+    """Extracts a registry-compatible provider name from the client class name."""
     name = type(client).__name__.lower()
-    if "tavily" in name:
-        return "tavily"
-    if "duckduckgo" in name:
-        return "duckduckgo"
-    if "brave" in name:
-        return "brave"
+    if "tavily"     in name: return "tavily"
+    if "duckduckgo" in name: return "duckduckgo"
+    if "brave"      in name: return "brave"
     return name

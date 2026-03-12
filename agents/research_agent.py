@@ -1,10 +1,15 @@
+
+# Research agent
+
+
 import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from tools.search_tools import get_search_client, run_multi_search
+from config.search_factory import get_search_client
+from tools.search_tools import run_multi_search
 from rag.retriever import build_context_block
 from prompts.research_prompt import RESEARCH_SYSTEM, RESEARCH_USER
 from tools.exceptions import SearchProviderError, LLMProviderError
@@ -42,19 +47,15 @@ def run_research_agent(state: dict, llm, search_provider: str = None) -> dict:
     # Build search queries from the business question
     queries = _build_search_queries(business_question, data_findings)
 
-    # Search — fall back to DuckDuckGo if primary provider fails
+    # Search — fallback is handled automatically by the registry
     search_results = []
     try:
         client = get_search_client(search_provider)
         search_results = run_multi_search(client, queries)
     except SearchProviderError as e:
-        if "duckduckgo" not in (search_provider or "").lower():
-            try:
-                fallback = get_search_client("duckduckgo")
-                search_results = run_multi_search(fallback, queries)
-            except SearchProviderError:
-                pass
-        state.setdefault("errors", []).append(str(e))
+        state.setdefault("errors", []).append(
+            e.retry_message or str(e)
+        )
 
     # RAG context from uploaded supporting documents
     rag_chunks = []
