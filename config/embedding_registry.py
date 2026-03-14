@@ -68,4 +68,17 @@ EMBEDDING_REGISTRY: dict[str, EmbeddingProviderConfig] = {
             "are set in .env, or switch EMBEDDING_PROVIDER=ollama in .env."
         ),
     ),
+
+    # huggingface embeddings
+    "huggingface": EmbeddingProviderConfig(
+        label           = "HuggingFace — all-MiniLM-L6-v2",
+        module          = "langchain_huggingface",
+        class_name      = "HuggingFaceEmbeddings",
+        api_key_setting = None,
+        model_setting   = "embedding_model",
+        retry_message   = (
+            "HuggingFace embeddings failed. Verify sentence-transformers is installed: "
+            "pip install sentence-transformers langchain-huggingface"
+        ),
+    ),
 }
