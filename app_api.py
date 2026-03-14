@@ -383,6 +383,6 @@ async def get_providers():
     }
 
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 async def health():
     return {"status": "ok", "version": settings.app_version}
