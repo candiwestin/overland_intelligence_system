@@ -805,7 +805,7 @@ select:focus { outline: none; border-color: var(--accent); }
 </div>
 
 <script>
-const API = 'http://localhost:8000';
+const API = 'https://overland-intelligence-system.onrender.com';
 let fileId = null;
 let runId  = null;
 let agentStates = {};
@@ -1186,7 +1186,7 @@ let PROVIDER_LABELS = {};
 
 async function fetchProviders() {
   try {
-    const res  = await fetch('http://localhost:8000/providers');
+    const res  = await fetch('https://overland-intelligence-system.onrender.com/providers');
     const data = await res.json();
 
     const llmSelect    = document.getElementById('llmSelect');
