@@ -12,8 +12,8 @@
   --bg-panel:    #FFFFFF;
   --bg-raised:   #E8ECF4;
   --bg-sidebar:  #F7F8FC;
-  --accent:      #0077CC;
-  --accent-dim:  #005599;
+  --accent:      #60a5fa;
+  --accent-dim:  #3b82f6;
   --accent-glow: rgba(0,119,204,0.15);
   --purple:      #6B3FBF;
   --purple-light: #EDE8F8;
@@ -259,7 +259,7 @@ select:focus { outline: none; border-color: var(--accent); }
 /* Run button */
 .btn-run {
   width: 100%;
-  background: linear-gradient(135deg, #0077CC, #005599);
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
   border: none;
   color: #FFFFFF;
   font-family: 'Orbitron', monospace;
@@ -983,7 +983,7 @@ function showErrorBanner(message, retryMessage) {
           ⚠ PIPELINE ERROR
         </div>
         <div style="color:#E0E4F0;font-size:13px;margin-bottom:${retryMessage ? '8px' : '0'}">${message}</div>
-        ${retryMessage ? `<div style="color:#0077CC;font-size:12px;line-height:1.5">→ ${retryMessage}</div>` : ''}
+        ${retryMessage ? `<div style="color:#60a5fa;font-size:12px;line-height:1.5">→ ${retryMessage}</div>` : ''}
       </div>
       <button onclick="document.getElementById('error-banner').remove()"
         style="background:none;border:none;color:#6B7280;cursor:pointer;font-size:18px;line-height:1;padding:0;flex-shrink:0">✕</button>
