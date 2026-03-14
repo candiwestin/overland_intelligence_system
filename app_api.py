@@ -38,11 +38,14 @@ app.add_middleware(
 # Pre-load embeddings model at startup to avoid cold delay on first request
 @app.on_event("startup")
 async def preload_models():
-    try:
-        from config.embedding_factory import get_embeddings
-        get_embeddings()
-    except Exception:
-        pass
+    import asyncio
+    async def _load():
+        try:
+            from config.embedding_factory import get_embeddings
+            await asyncio.get_event_loop().run_in_executor(None, get_embeddings)
+        except Exception:
+            pass
+    asyncio.create_task(_load())
 
 # In-memory run registry — stores completed results keyed by run_id
 # Resets on server restart. Sufficient for local demo use.
