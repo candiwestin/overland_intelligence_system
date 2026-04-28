@@ -22,6 +22,10 @@ env/
 # Qdrant (if ever persisted locally)
 qdrant_storage/
 
+# Local model/cache artifacts (never commit)
+models/
+.cache/huggingface/
+
 # Generated reports
 output/reports/
 

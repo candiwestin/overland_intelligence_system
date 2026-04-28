@@ -155,6 +155,8 @@ ollama pull llama3.2
 ollama pull nomic-embed-text
 ```
 
+Model downloads and embedding caches are local runtime assets and should not be committed.
+
 ### 4. Run
 
 ```bash
