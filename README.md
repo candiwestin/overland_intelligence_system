@@ -8,6 +8,20 @@ A multi-agent business intelligence pipeline built with LangGraph, FastAPI, and 
 
 ---
 
+## Pre-Employment Independent Project Statement
+
+Project state documented as of 2026-04-24 (pre-employment).
+
+This project was independently created before employment at Jack Henry.
+
+It was built on personal time, using personal equipment, personal accounts, and non-employer data. It is not based on employer systems, employer code, employer architecture, employer workflows, employer client data, or employer confidential information.
+
+This project is intended as a personal portfolio project demonstrating my technical skills.
+
+This project uses sample, public, synthetic, or independently sourced data and does not contain employer or client information.
+
+---
+
 ## What It Does
 
 The system runs five AI agents in sequence through a stateful LangGraph pipeline:
